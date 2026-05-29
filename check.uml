@@ -1,0 +1,22 @@
+@startuml
+title XSS Test <script>alert('xss-title')</script>
+
+Alice -> Bob: normal message
+
+note over Alice
+<script>alert('xss-note')</script>
+<img src=x onerror=alert('xss-img')>
+<svg onload=alert('xss-svg')>
+<a href="javascript:alert('xss-link')">click</a>
+</note>
+
+class "<script>alert('xss-class')</script>" as XSSClass {
+  field: <img src=x onerror=alert('xss-field')>
+  method(): <svg/onload=alert('xss-method')>
+}
+
+Alice -> Bob: <img src=x onerror=alert('xss-message')>
+Alice -> Bob: "><script>alert('xss-breakout')</script>
+Alice -> Bob: ' autofocus onfocus=alert('xss-attr') x='
+
+@enduml
