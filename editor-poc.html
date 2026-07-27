@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<body>
+  <h1>Editor bridge PoC</h1>
+  <pre id="out">waiting...</pre>
+
+  <script>
+    const out = document.getElementById("out");
+
+    window.addEventListener("message", (event) => {
+      let data = event.data;
+      try { data = JSON.parse(data); } catch {}
+
+      console.log("message from app:", event.origin, data);
+
+      if (data?.name === "editifyParent.campaignData") {
+        out.textContent = JSON.stringify({
+          received: data.name,
+          accountId: data.account?.id,
+          userId: data.user?.id,
+          hasUploadHash: Boolean(data.account?.hashes?.upload),
+          hasPreviewHash: Boolean(data.account?.hashes?.preview),
+          hasPlayerToken: Boolean(data.options?.playerToken),
+          campaignId: data.campaign?.id
+        }, null, 2);
+      }
+    });
+
+    function send(msg) {
+      if (!window.opener) {
+        out.textContent = "No opener. Open this through editor flow.";
+        return;
+      }
+      window.opener.postMessage(JSON.stringify(msg), "*");
+    }
+
+    setTimeout(() => {
+      send({ name: "acknowledgeEditorTabLoaded" });
+    }, 1000);
+  </script>
+</body>
+</html>
